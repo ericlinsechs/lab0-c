@@ -62,17 +62,9 @@ bool q_insert_head(struct list_head *head, char *s)
     if (!head)
         return false;
 
-    element_t *new_ele = (element_t *) malloc(sizeof(*new_ele));
+    element_t *new_ele = create_element(s);
     if (!new_ele)
         return false;
-
-    new_ele->value = malloc(sizeof(char) * (strlen(s) + 1));
-    if (!new_ele->value) {
-        free(new_ele);
-        return false;
-    }
-
-    strncpy(new_ele->value, s, strlen(s) + 1);
 
     list_add(&new_ele->list, head);
 
