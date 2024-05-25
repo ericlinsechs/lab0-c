@@ -29,6 +29,20 @@ __attribute__((nonnull)) static element_t *create_element(char *s)
     return new_ele;
 }
 
+__attribute__((nonnull(1))) static inline void remove_element(element_t *ele,
+                                                              char *sp,
+                                                              size_t bufsize)
+{
+    if (sp) {
+        size_t len = strlen(ele->value) < (bufsize - 1) ? strlen(ele->value)
+                                                        : (bufsize - 1);
+        memcpy(sp, ele->value, len);
+        sp[len] = '\0';
+    }
+
+    list_del_init(&ele->list);
+}
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -99,14 +113,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     struct list_head *node = head->next;
     element_t *ele = list_entry(node, element_t, list);
 
-    if (sp) {
-        size_t len = strlen(ele->value) < (bufsize - 1) ? strlen(ele->value)
-                                                        : (bufsize - 1);
-        memcpy(sp, ele->value, len);
-        sp[len] = '\0';
-    }
-
-    list_del_init(&ele->list);
+    remove_element(ele, sp, bufsize);
 
     return ele;
 }
