@@ -11,6 +11,24 @@
  */
 
 
+/* Create an element and initialize it */
+__attribute__((nonnull)) static element_t *create_element(char *s)
+{
+    element_t *new_ele = (element_t *) malloc(sizeof(*new_ele));
+    if (!new_ele)
+        return NULL;
+
+    new_ele->value = malloc(sizeof(char) * (strlen(s) + 1));
+    if (!new_ele->value) {
+        free(new_ele);
+        return NULL;
+    }
+
+    strncpy(new_ele->value, s, strlen(s) + 1);
+
+    return new_ele;
+}
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -64,6 +82,15 @@ bool q_insert_head(struct list_head *head, char *s)
 /* Insert an element at tail of queue */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;
+
+    element_t *new_ele = create_element(s);
+    if (!new_ele)
+        return false;
+
+    list_add_tail(&new_ele->list, head);
+
     return true;
 }
 
