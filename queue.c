@@ -211,8 +211,49 @@ void q_reverseK(struct list_head *head, int k)
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
 }
 
+static void merge_two_lists(struct list_head *l1,
+                            struct list_head *l2,
+                            bool descend)
+{
+    if (!l1 || !l2)
+        return;
+
+    struct list_head head;
+    INIT_LIST_HEAD(&head);
+
+    while (!list_empty(l1) && !list_empty(l2)) {
+        element_t *el = list_first_entry(l1, element_t, list);
+        element_t *er = list_first_entry(l2, element_t, list);
+        struct list_head *node = (descend ^ (strcmp(el->value, er->value) < 0))
+                                     ? l1->next
+                                     : l2->next;
+        list_move_tail(node, &head);
+    }
+    list_splice_tail_init(list_empty(l1) ? l2 : l1, &head);
+    list_splice(&head, l1);
+}
+
 /* Sort elements of queue in ascending/descending order */
-void q_sort(struct list_head *head, bool descend) {}
+void q_sort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *slow = head, *fast = head->next;
+    for (; fast != head && fast->next != head; fast = fast->next->next)
+        slow = slow->next;
+
+    struct list_head left;
+
+    // Divide list from the middle
+    list_cut_position(&left, head, slow);
+
+    q_sort(&left, descend);
+    q_sort(head, descend);
+
+    // Merge divided lists
+    merge_two_lists(head, &left, descend);
+}
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
